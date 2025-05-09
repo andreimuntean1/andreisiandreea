@@ -43,6 +43,7 @@ const { updateMessage, updateName } = useFilesStore();
 textarea,
 input {
   font-family: "Inter", sans-serif;
+  font-size: 1em;
   padding: 1em 0.75em;
   width: 100%;
   background: #eaf6ff;

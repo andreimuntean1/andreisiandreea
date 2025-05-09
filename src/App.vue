@@ -8,7 +8,7 @@ import { toPDF } from "./utils/toPDF";
 import { uploadFiles } from "./utils/uploadFiles";
 import { ref } from "vue";
 
-const uploading = ref(false);
+const uploading = ref<boolean | undefined>();
 const responses = ref([]);
 const errors = ref<string[]>([]);
 const formError = ref<string | undefined>();
@@ -90,7 +90,7 @@ async function submit() {
       <button id="done" @click="submit">GATA</button>
     </div>
   </section>
-  <section id="thankyou">
+  <section v-if="uploading !== undefined" id="thankyou">
     <div>
       <h1>Mulțumim!</h1>
       <p>
@@ -104,7 +104,7 @@ async function submit() {
         <span class="loader"></span>
         <p style="color: #013265">Se trimite...</p>
       </template>
-      <template v-else>
+      <template v-else-if="uploading === false">
         <img src="/check.svg" style="width: 64px; height: 64px" alt="Succes" />
         <p style="color: #7a9ebf; max-width: 210px">
           Gândurile și pozele au fost trimise cu succes spre miri
@@ -134,13 +134,18 @@ section {
   grid-template-columns: 1fr;
   place-items: center;
   color: $text;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   scroll-snap-stop: always;
+  -webkit-snap-align: start;
+  -webkit-snap-stop: always;
 
   &:nth-of-type(1) {
     div {
       grid-row-start: 2;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
 
     .arrow {
@@ -148,33 +153,42 @@ section {
     }
   }
 
-  &:not(:has(div > h1.hero)):not(:has(.upload-container)) {
+  &:not(:has(div > h1.hero)) {
     div:nth-of-type(1) {
-      align-self: end;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
 
-    div:nth-of-type(2) {
-      display: grid;
-      justify-self: center;
-      min-width: 100%;
-
-      button#done {
-        margin-top: 35px;
-        background: #a2cffe;
-        color: #013265;
-        outline: none;
-        border: none;
-        padding: 10px 20px;
-        font-family: "Inter", serif;
-        font-weight: bold;
-        border-radius: 6px;
+    &:not(:has(.upload-container)) {
+      div:nth-of-type(1) {
+        align-self: end;
       }
-    }
 
-    textarea,
-    input {
-      margin-top: 1.75em;
-      align-self: start;
+      div:nth-of-type(2) {
+        display: grid;
+        justify-self: center;
+        min-width: 100%;
+
+        button#done {
+          margin-top: 35px;
+          background: #a2cffe;
+          color: #013265;
+          outline: none;
+          border: none;
+          padding: 10px 20px;
+          font-family: "Inter", serif;
+          font-weight: bold;
+          border-radius: 6px;
+        }
+      }
+
+      textarea,
+      input {
+        margin-top: 1.75em;
+        align-self: start;
+      }
     }
   }
 
