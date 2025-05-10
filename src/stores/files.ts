@@ -6,8 +6,8 @@ export const useFilesStore = defineStore("files", () => {
   const name = ref<string>("");
   const message = ref<string>("");
 
-  const addFiles = (newFiles: Ref<File[]>) => {
-    files.value.push(...newFiles.value);
+  const addFiles = (newFiles: File[]) => {
+    files.value.push(...newFiles);
   };
 
   const updateName = (newName: string) => {

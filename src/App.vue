@@ -6,7 +6,7 @@ import TextInput from "./components/TextInput.vue";
 import { useFilesStore } from "./stores/files";
 import { toPDF } from "./utils/toPDF";
 import { uploadFiles } from "./utils/uploadFiles";
-import { ref } from "vue";
+import { nextTick, ref, watch } from "vue";
 
 const uploading = ref<boolean | undefined>();
 const responses = ref([]);
@@ -16,13 +16,25 @@ const formError = ref<string | undefined>();
 const { reset } = useFilesStore();
 const { files, name, message } = storeToRefs(useFilesStore());
 
+watch(uploading, async (newVal) => {
+  if (newVal) {
+    await nextTick();
+    const el = document.getElementById("thankyou");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+});
+
 async function submit() {
+  uploading.value = true;
+  const filesArray = ref([...files.value]);
+
   if (!name.value) {
     formError.value =
       "Ne-ar plăcea să știm cine ne trimite aceste amintiri prețioase. Te rugăm să-ți treci numele";
     return;
   }
-
   if (!(name.value.split(" ").length > 1)) {
     formError.value = "Te rugăm să îți treci numele și prenumele";
     return;
@@ -32,13 +44,11 @@ async function submit() {
     return;
   }
 
-  const thankYouSection = document.getElementById("thankyou");
-  if (thankYouSection) {
-    thankYouSection.scrollIntoView({ behavior: "smooth" });
+  if (message.value) {
+    const generatedPDF = toPDF(message.value, name.value);
+    filesArray.value.push(generatedPDF);
   }
-  const filesArray = ref([...files.value]);
-  const generatedPDF = toPDF(message.value, name.value);
-  filesArray.value.push(generatedPDF);
+
   await uploadFiles(filesArray, name, uploading, responses, errors).then(() => {
     reset();
     formError.value = undefined;
@@ -181,6 +191,7 @@ section {
           font-family: "Inter", serif;
           font-weight: bold;
           border-radius: 6px;
+          cursor: pointer;
         }
       }
 

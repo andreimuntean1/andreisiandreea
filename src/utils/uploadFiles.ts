@@ -10,7 +10,7 @@ function getKebabFolderPath(name: string, fileName: string): string {
 export async function uploadFiles(
   files: Ref<File[]>,
   name: Ref<string>,
-  uploading: Ref<boolean>,
+  uploading: Ref<boolean | undefined>,
   responses: Ref<UploadResponse[]>,
   errors: Ref<string[]>
 ): Promise<void> {

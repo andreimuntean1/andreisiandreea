@@ -31,9 +31,7 @@ export interface UploadResponse {
 }
 
 const { addFiles } = useFilesStore();
-const { files } = storeToRefs(useFilesStore());
 const uploaded = ref<boolean>(false);
-const src = uploaded.value ? "/check.svg" : "/upload.svg";
 
 const { open, onChange } = useFileDialog({
   accept: "image/*,video/*",
@@ -46,14 +44,19 @@ function openFileDialog(): void {
 
 onChange(async (selected: FileList | null) => {
   if (!selected || selected.length === 0) return;
-  files.value = Array.from(selected);
-  addFiles(files);
+  const selectedFiles = Array.from(selected);
+  addFiles(selectedFiles);
   uploaded.value = true;
 });
 </script>
 
 <template>
-  <div class="upload-container" @click="openFileDialog">
+  <div
+    class="upload-container"
+    role="button"
+    tabindex="0"
+    @click="openFileDialog"
+  >
     <template v-if="!uploaded">
       <img src="/upload.svg" alt="Upload files" />
       <p>Apasă aici ca să încarci fișiere</p>
@@ -65,7 +68,7 @@ onChange(async (selected: FileList | null) => {
   </div>
 </template>
 
-<style scoped1 lang="scss">
+<style scoped lang="scss">
 .upload-container {
   width: 100%;
   aspect-ratio: 16/9;
