@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import Arrow from "./components/Arrow.vue";
 import FileUpload from "./components/FileUpload.vue";
 import TextInput from "./components/TextInput.vue";
 import { useFilesStore } from "./stores/files";
@@ -16,19 +15,51 @@ const formError = ref<string | undefined>();
 const { reset } = useFilesStore();
 const { files, name, message } = storeToRefs(useFilesStore());
 
-watch(uploading, async (newVal) => {
-  if (newVal) {
-    await nextTick();
-    const el = document.getElementById("thankyou");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-});
+const hasScrolledToThankYou = ref(false);
 
-async function submit() {
-  uploading.value = true;
-  const filesArray = ref([...files.value]);
+const scrollToThankYou = () => {
+  const el = document.getElementById("thankyou");
+  if (el) {
+    // Save current scroll position before scrolling
+    const scrollY = window.scrollY;
+
+    // Scroll to the thank you section
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Mark that we've scrolled
+    hasScrolledToThankYou.value = true;
+
+    // Use multiple attempts to maintain scroll position
+    const maintainScroll = (attempts = 0) => {
+      if (attempts >= 10) return; // Stop after reasonable number of attempts
+
+      setTimeout(() => {
+        const currentEl = document.getElementById("thankyou");
+        if (currentEl && hasScrolledToThankYou.value) {
+          const currentRect = currentEl.getBoundingClientRect();
+          // If element is not at top of viewport, scroll again
+          if (currentRect.top !== 0) {
+            currentEl.scrollIntoView({ behavior: "auto", block: "start" });
+          }
+          maintainScroll(attempts + 1);
+        }
+      }, 200); // Check every 200ms
+    };
+
+    maintainScroll();
+  }
+};
+
+const preventDefaults = (e: Event) => {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  return false;
+};
+
+async function submit(e: Event) {
+  preventDefaults(e);
 
   if (!name.value) {
     formError.value =
@@ -44,18 +75,39 @@ async function submit() {
     return;
   }
 
-  if (message.value) {
-    const generatedPDF = toPDF(message.value, name.value);
-    filesArray.value.push(generatedPDF);
-  }
+  uploading.value = true;
 
-  await uploadFiles(filesArray, name, uploading, responses, errors).then(() => {
-    reset();
-    formError.value = undefined;
-    responses.value = [];
-    errors.value = [];
+  await nextTick();
+  scrollToThankYou();
+
+  try {
+    const filesArray = ref([...files.value]);
+
+    if (message.value) {
+      const generatedPDF = toPDF(message.value, name.value);
+      filesArray.value.push(generatedPDF);
+    }
+
+    await uploadFiles(filesArray, name, uploading, responses, errors);
+
+    const performReset = () => {
+      reset();
+      formError.value = undefined;
+      responses.value = [];
+      errors.value = [];
+    };
+
+    setTimeout(performReset, 300);
+
+    setTimeout(() => {
+      uploading.value = false;
+
+      setTimeout(scrollToThankYou, 100);
+    }, 1000);
+  } catch (error) {
+    console.error("Upload error:", error);
     uploading.value = false;
-  });
+  }
 }
 </script>
 
@@ -65,7 +117,7 @@ async function submit() {
       <h1 class="hero">Andrei și Andreea</h1>
       <h2>17.05.2025</h2>
     </div>
-    <Arrow to="review" />
+    <img src="/arrow.svg" class="arrow" alt="Arrow down" />
   </section>
   <section id="review">
     <div>
@@ -73,7 +125,7 @@ async function submit() {
       <p>Scrie-ne cum ți s-a părut la nuntă, un gând frumos sau o urare.</p>
     </div>
     <TextInput kind="multiline" />
-    <Arrow to="media" id="text" />
+    <img src="/arrow.svg" class="arrow" alt="Arrow down" />
   </section>
   <section id="media">
     <div>
@@ -85,7 +137,7 @@ async function submit() {
       </p>
     </div>
     <FileUpload />
-    <Arrow to="name" />
+    <img src="/arrow.svg" class="arrow" alt="Arrow down" />
   </section>
   <section id="name">
     <div>
@@ -232,6 +284,20 @@ section {
     opacity: 0.75;
     text-align: center;
     margin-top: 20px;
+  }
+
+  img.arrow {
+    animation: jump 1.5s ease-out infinite;
+  }
+
+  @keyframes jump {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   .loader {
