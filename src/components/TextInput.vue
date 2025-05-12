@@ -25,14 +25,14 @@ const { updateMessage, updateName } = useFilesStore();
       v-model="name"
       @input="() => updateName(name)"
       type="text"
-      placeholder="Scrie aici..."
+      :placeholder="$t('message.placeholder')"
     />
     <p class="error" v-if="error">{{ error }}</p>
   </template>
   <template v-if="kind === 'multiline'">
     <textarea
       v-model="message"
-      placeholder="Scrie aici..."
+      :placeholder="$t('message.placeholder')"
       @input="updateMessage(message)"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"
     ></textarea>

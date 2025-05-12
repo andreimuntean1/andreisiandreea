@@ -59,11 +59,11 @@ onChange(async (selected: FileList | null) => {
   >
     <template v-if="!uploaded">
       <img src="/upload.svg" alt="Upload files" />
-      <p>Apasă aici ca să încarci fișiere</p>
+      <p>{{ $t("message.media.helper") }}</p>
     </template>
     <template v-else>
       <img src="/check.svg" style="width: 48px; height: 48px" alt="Succes" />
-      <p>Fișierele au fost încărcate cu succes</p>
+      <p>{{ $t("message.media.success") }}</p>
     </template>
   </div>
 </template>
@@ -86,6 +86,7 @@ onChange(async (selected: FileList | null) => {
 
   p {
     color: #7a9ebf;
+    text-align: center;
   }
 }
 </style>
