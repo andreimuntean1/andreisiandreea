@@ -207,7 +207,7 @@ $hero-sz: 2.25em;
 $subtitle-sz: 1.5em;
 
 section {
-  height: 100dvh;
+  min-height: 100dvh;
   padding: 0 3em;
   display: grid;
   grid-template-rows: repeat(3, 1fr);
