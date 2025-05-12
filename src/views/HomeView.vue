@@ -6,7 +6,6 @@ import { useFilesStore } from "../stores/files";
 import { toPDF } from "../utils/toPDF";
 import { uploadFiles } from "../utils/uploadFiles";
 import { nextTick, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { i18n, type Language } from "@/locales/i18n";
 
@@ -17,7 +16,6 @@ defineProps({
   },
 });
 
-const { t } = useI18n();
 const route = useRoute();
 const uploading = ref<boolean | undefined>();
 const responses = ref([]);
