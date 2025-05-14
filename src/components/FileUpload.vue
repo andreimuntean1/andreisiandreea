@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { uploadFiles } from "@/utils/uploadFiles";
 import { useFileDialog } from "@vueuse/core";
-import { computed, ref, watch } from "vue";
+import { ref } from "vue";
 import { useFilesStore } from "@/stores/files";
-import { storeToRefs } from "pinia";
 
 interface FileEntry {
   id: number;
