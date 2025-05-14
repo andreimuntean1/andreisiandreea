@@ -25,28 +25,36 @@ interface FileEntry {
   users: { id: number; email: string }[];
 }
 
+// Response format expected from the upload API
 export interface UploadResponse {
   status: "success";
   fileEntry: FileEntry;
 }
 
+// Destructure addFiles from the Pinia store
 const { addFiles } = useFilesStore();
+
+// Reactive flag indicating whether any files have been selected/uploaded
 const uploaded = ref<boolean>(false);
 
+// Destructure the file picker logic from VueUse
 const { open, onChange } = useFileDialog({
-  accept: "image/*,video/*",
-  multiple: true,
+  accept: "image/*,video/*", // Accept only image or video files
+  multiple: true, // Allow multiple file selection
 });
 
+// Triggers the native file dialog when called (can be used in a button)
 function openFileDialog(): void {
   open();
 }
 
+// Watcher for changes in selected files (triggered after dialog closes)
 onChange(async (selected: FileList | null) => {
-  if (!selected || selected.length === 0) return;
-  const selectedFiles = Array.from(selected);
-  addFiles(selectedFiles);
-  uploaded.value = true;
+  if (!selected || selected.length === 0) return; // Ignore if no files were selected
+
+  const selectedFiles = Array.from(selected); // Convert FileList to an array
+  addFiles(selectedFiles); // Add files to the Pinia store
+  uploaded.value = true; // Mark as uploaded
 });
 </script>
 

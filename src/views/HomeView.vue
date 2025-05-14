@@ -25,6 +25,24 @@ const formError = ref<string | undefined>();
 const { reset } = useFilesStore();
 const { files, name, message } = storeToRefs(useFilesStore());
 
+/**
+ * Watches for changes in the route path and updates the application's locale accordingly.
+ *
+ * - Extracts the locale from the route path if it matches the pattern `/en`, `/ro`, or `/uk`.
+ * - Updates the `i18n` global locale value with the extracted locale.
+ * - Executes immediately upon initialization due to the `immediate: true` option.
+ *
+ * @param {Function} () => route.path - A function that returns the current route path.
+ * @param {Function} (newPath: string) => void - A callback function triggered when the route path changes.
+ *   - `newPath` - The updated route path.
+ * @param {Object} options - Configuration options for the watcher.
+ *   - `immediate: true` - Ensures the watcher runs immediately upon setup.
+ *
+ * Regex Details:
+ * - `^\/(en|ro|uk)(?=\/|$)`:
+ *   - Matches paths starting with `/en`, `/ro`, or `/uk`.
+ *   - Ensures the locale is followed by a `/` or the end of the string.
+ */
 watch(
   () => route.path,
   (newPath) => {
@@ -83,6 +101,27 @@ const preventDefaults = (e: Event) => {
   return false;
 };
 
+/**
+ * Handles the form submission process, including validation, file upload, and UI updates.
+ *
+ * @param {Event} e - The event object triggered by the form submission.
+ *
+ * Functionality:
+ * - Prevents default form submission behavior.
+ * - Validates the form inputs:
+ *   - Ensures the `name` field is not empty.
+ *   - Ensures the `name` field contains both first and last names.
+ *   - Ensures either a message or at least one file is provided.
+ * - Displays appropriate error messages if validation fails.
+ * - Generates a PDF from the message (if provided) and adds it to the files array.
+ * - Uploads the files and handles the responses and errors.
+ * - Resets the form and clears error messages after a successful upload.
+ * - Updates the UI to indicate the upload process and scrolls to the "Thank You" section.
+ *
+ * Error Handling:
+ * - Logs any errors encountered during the upload process.
+ * - Ensures the `uploading` state is reset in case of an error.
+ */
 async function submit(e: Event) {
   preventDefaults(e);
 
